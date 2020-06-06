@@ -32,7 +32,7 @@ Indeed, it can. If what you are looking for is to route all the traffic through 
 
 But take a second look at my setup above. As soon as all traffic goes through the VPN, everything starts to slow down, fall apart and I lose local and/or remote access to the rest of containers and applications; far from ideal.
 
----
+
 ## Before we start
 
 ##### Enable the SSH service
@@ -63,7 +63,7 @@ You will now be prompted to enter the password for the user.
 
 ![Install Docker](resources/install_docker.png)
 
----
+
 ## Creating the Docker containers
 All the commands used in this sections are to be used from within the SSH session.
 > Running `sudo` commands will prompt you to enter a password from time to time. Use the password for the Synology user currently logged into the SSH-session.
@@ -160,43 +160,98 @@ You can now open your browser and navigate to `http://<Synology NAS IP>:5800` an
 
 >When starting your first download, it is possible that JDownloader will show an error regarding _Invalid download directory_. This is due to the fact that, although we mounted the `/output` directory, the user for which the `jdownloader` container is running doesn't have the necessary access rights. Please refer to the _Troubleshooting_ section further down for a step by step fix.
 
-##### Setting up MyJDownloader
-![](resources/default_download_folder.png)
+***Phew...job done, right!?***
 
----
+Well, I would recommend setting up MyJDownloader to access your JDownloader. This has a few advantages:
+- Access remotely, not just from your local network (or messing around with port forwarding rules in your router)
+- Access from mobile apps
+- "Native" browser interface, instead of a application interface from within the browser
+- You don't sacrifice anything and still can tweak all possible settings, update, restart, etc.
+
+![JDownloader web access](resources/jdownloader_web_access.png)
+
+From the ***Settings*** menu you can enter your MyJDownloader credentials (or create a new account), as well as give it a shiny new name you like.
+
+> If you need to paste anything from your computer's clipboard into the JDownloader running inside the browser, you can use the tool in the top right corner of the windows. This might be the case if you use a long, auto-generated password stored in a password manager (which you totally should be using, btw.).
+
+Once you enter your credentials and your JDownloader is linked with your MyJDownloader account, you can close this windows and never open it again. Head over to https://my.jdwonloader.org and you should be able to access from there.
+
+> Since we won't be needing to access the application using the port 5800 anymore, we could, theoretically, remove its mapping from the `nordvpn` container to limit LAN access to our JDownloader.
+
+
 ## Where to go from here?
 
-- refresh vpn for a new IP to bypass download limits
-    - restart nordvpn
-        - jdownload restart required, too, because it loses the network reference
-        - not guaranteed to connect to a different vpn server
-    - manually connect to 
+![show me more](https://media.makeameme.org/created/show-me-more-4raqft.jpg)
+
+Let me guess what you are thinking: *How could I exploit this to bypass download limits?* Well, I won't go into that. However, when you connect to a new VPN server, you usually get a new IP. I'll leave it at that.
+
+> Keep in mind: If you restart the `nordvpn` container, you will have to restart the `jdownloader` container, too. Additionally, restarting your `nordvpn` container might reconnect you to the same server you were already connected to.
+
+You can enter into the docker container through the terminal using:
+```
+sudo docker exec -it nordvpn bash
+```
+
+You can read more about NordVPN commands in the [official NordVPN Linux guide](https://support.nordvpn.com/Connectivity/Linux/1325531132/Installing-and-using-NordVPN-on-Debian-Ubuntu-Elementary-OS-and-Linux-Mint.htm#Settings).
     
----
+
 ## Troubleshooting
 
 ##### Missing `/dev/net/tun` device / Docker API has failed
 
 ![](resources/docker_api_fail.png)
 
-`Error response from daemon: linux runtime spec devices: error gathering device information while adding custom device "/dev/net/tun": no such file or directory.`
-
 Indeed, if we take a look at the Docker log, we will find an Error entry with the following Event:
 
 `Start container nordvpn failed: {"message":"linux runtime spec devices: error gathering device information while adding custom device \"/dev/net/tun\": no such file or directory"}.`
 
-https://github.com/binhex/arch-delugevpn/issues/67#issuecomment-399380209
+If we were running the container from the console, it could look like this:
 
+`Error response from daemon: linux runtime spec devices: error gathering device information while adding custom device "/dev/net/tun": no such file or directory.`
 
-##### invalid download directory
+I found the solution [here](https://github.com/binhex/arch-delugevpn/issues/67#issuecomment-399380209) does do the trick. Type in these two commands
+
+```
+sudo insmod /lib/modules/tun.ko
+```
+No response here is perfectly normal. Go on with the second one:
+```
+insmod /lib/modules/iptable_mangle.ko
+```
+If it returns the error `insmod: ERROR: could not insert module /lib/modules/iptable_mangle.ko: File exists` that's perfectly fine. You should now be able to restart the `nordvpn` container using:
+```
+sudo docker container restart nordvpn
+```
+
+---
+##### *Invalid download directory* in JDownloader download
 ![](resources/invalid_directory.png)
 
-- set UID and GUID
+When Docker runs your `jdownloader` container, it does so by using a specific user and group ID. This error occurs when your `jdownloader` uses the ID of a user that doesn't have read/write permissions for the mounted volume (Synology path) mounted as `/output`.
 
-##### restart jdownload requires join network
+The easiest fix for this is to run the container using your user and group IDs. To find out what these IDs are, just type in:
+```
+id
+```
+which should give you an output like this:
+```
+uid=1026(michael) gid=100(users) groups=100(users),101(administrators)
+```
+
+Now we must tell Docker to run `jdownloader` as user (uid) `1026` and group (gid) `100`.
+
+1. Stop `jdownloader` from the Docker GUI.
+2. Right click on it and select ***Edit***.
+3. Go to the ***Environment*** tab and enter the corresponding `uid` and `gid` that you got when running the `id` command.
+
+![Edit environment variables](resources/edit_container_environment.png)
+
+
+---
+##### *Container must join at least one network* when starting the `jdownloader` container
 ![](resources/container_join_network.png)
 
-restart from command line
+Our `jdownloader` container requires the information on restart about which network to join. You will see the error above if you try to start the container from the Synology Docker GUI. Instead, you can do this from the console:
 ```
 sudo docker container restart jdownloader
 ```
