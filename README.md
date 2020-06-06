@@ -88,7 +88,7 @@ To install them:
 ###### NordVPN
 >We could create the containers from within the Docker GUI, however, the functionality is limited and not all options we need are available.
 
-Since the `jdownloader` container **needs** to use the network provided by the `nordvpn` container, we need to create the latter first:
+Since the `jdownloader` container **needs** to use the network provided by the `nordvpn` container, we need to create `nordvpn` first:
 
 ```
 sudo docker run -ti \
@@ -116,7 +116,7 @@ You will need to replace the following information:
 |`<NORDVPN_PASSWORD>`|Your NordVPN password.|
 |`<ROUTER_LOCAL_IP>`|Your router's local IP. This will probably something like `192.168.0.1`. <br>The `/24` after the IP represents the subnet mask. Use: <br>`/24` for `255.255.255.0` <br>or <br>`/16` for `255.255.0.0`|
 
-Please refer to the [official NordVPN Docker documentation](https://github.com/bubuntux/nordvpn#environment-variables) a detailed description of the rest of parameters.
+Please refer to the [official NordVPN Docker documentation](https://github.com/bubuntux/nordvpn#environment-variables) for a detailed description of the rest of parameters.
 
 ##### What are those port mappings for?
 
@@ -125,21 +125,21 @@ Take a look at the command above again. You might have noticed these two lines:
 -p 5800:5800 \
 -p 3129:3129 \
 ```
-Those are port mappings between the host and the container. We will need those in order to be able to access the `jdownloader` container. However, since it's the `nordvpn` container who creates the network the other container will use, they must be specified here.
+Those are port mappings between the host and the container. We will need those in order to be able to access the `jdownloader` container. However, since it's the `nordvpn` container who creates the network, they must be specified here.
 
-- `5800` this is the port used to access the JDownloader GUI for setup.
-- `3129` this port allows for a direct connection through MyJDownloader. If you don't plan to access your JDownloader through MyJDownloader, you can remove this port mapping.
+|Port|Details|
+|:--|:--|
+|`5800`|Needed to access the JDownloader GUI for setup|
+|`3129`|Optional. Allows for a direct connection through MyJDownloader. If you don't plan to access your JDownloader through MyJDownloader, you may remove this port mapping.|
 
 ###### JDownloader
 
-This container requires two volumes to be mounted, `/config` and `/output`. The former will be where your configuration is stored and the latter where your files will be downloaded to. If necessary, create the necessary folders in your Synology NAS.
+This container requires two volumes to be mounted, `/config` and `/output`. If necessary, create the necessary folders in your Synology NAS.
 
-In my case, I have decided to mount the following folder:
-
-|Synology (host) path|The path the container sees|
-|:--|:--|
-|`/volume1/docker/jdownloader`|`/config`|
-|`/volume1/Downloads`|`/output`|
+|Synology (host) path|Path the container sees|Details|
+|:--|:--|:--|
+|`/volume1/docker/jdownloader`|`/config`|Where your configuration is stored.|
+|`/volume1/Downloads`|`/output`|Where your files will be downloaded to.|
 
 Volumes are mounted using the syntax: `-v "<host path>:<container path>:rw"`. The `:rw` at the end denotes the container will have read/write access rights.
 
