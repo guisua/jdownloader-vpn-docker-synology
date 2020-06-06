@@ -153,7 +153,7 @@ sudo docker run -ti \
 -d jlesage/jdownloader-2
 ```
 
-> In case you ever need to delete the `jdwonloader` container, as long as you map the `/config` directory from the container to the same path on your host, your configuration will still be available.
+> In case you ever need to delete the `jdownloader` container, as long as you map the `/config` directory from the container to the same path on your host, your configuration will still be available. Furthermore, (although untested) in case you already have a JDownloader configuration, you should be able to use it by mounting the corresponding directory.
 
 ##### Accessing JDownloader
 You can now open your browser and navigate to `http://<Synology NAS IP>:5800` and you should be able to reach your JDownloader instance running inside the Docker container.
