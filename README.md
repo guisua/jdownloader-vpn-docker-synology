@@ -40,7 +40,7 @@ To follow the steps below you will need to SSH into your Synology NAS.
 1. Open the Synology **_Control Panel_** and navigate to **_Terminal & SNMP_**.
 2. Check the option **_Enable SSH service_**. Although not strictly necessary, it is recommended to specify a port other than the default `22`.
 
-![Enabling SSH](resources/ssh_enable.PNG)
+![Enabling SSH](resources/ssh_enable.png)
 
 Now you can simply SSH into your Synology NAS like this:
 
