@@ -46,8 +46,10 @@ Now you can simply SSH into your Synology NAS like this:
 
 ```
 ssh <user>@<Synology local IP> -p <port>
+```
 
 Example:
+```
 ssh michael@192.168.0.2 -p 77
 ```
 You will now be prompted to enter the password for the user.
@@ -63,7 +65,7 @@ You will now be prompted to enter the password for the user.
 
 ---
 ## Creating the Docker containers
-All the commands used in this sections are to be used from within the SSH .
+All the commands used in this sections are to be used from within the SSH session.
 > Running `sudo` commands will prompt you to enter a password from time to time. Use the password for the Synology user currently logged into the SSH-session.
 
 ##### Downloading the images
@@ -74,7 +76,7 @@ We will be using the following Docker images:
 - [jlesage/jdownloader-2](https://hub.docker.com/r/jlesage/jdownloader-2)
   - `https://hub.docker.com/r/jlesage/jdownloader-2`
 
-Install both images:
+To install them:
 1. Open the Docker application inside Synology.
 2. Navigate to **_Image_** and click on **_Add > Add from URL_**.
 3. In the prompt, enter the image's URL and click on **_Add_**.
@@ -84,7 +86,7 @@ Install both images:
 
 ##### Launching the containers
 ###### NordVPN
-We could create the containers from within the Docker GUI, however, the functionality is limited and not all option we need are available. We will use this from the terminal, instead.
+>We could create the containers from within the Docker GUI, however, the functionality is limited and not all options we need are available.
 
 Since the `jdownloader` container **needs** to use the network provided by the `nordvpn` container, we need to create the latter first:
 
