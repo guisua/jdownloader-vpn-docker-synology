@@ -175,7 +175,9 @@ You can now open your browser and navigate to `http://<Synology NAS IP>:5800` an
 ---
 ## Troubleshooting
 
-##### Missing `/dev/net/tun` device
+##### Missing `/dev/net/tun` device / Docker API has failed
+
+![](resources/docker_api_fail.png)
 `Error response from daemon: linux runtime spec devices: error gathering device information while adding custom device "/dev/net/tun": no such file or directory.`
 
 Indeed, if we take a look at the Docker log, we will find an Error entry with the following Event:
@@ -186,9 +188,11 @@ https://github.com/binhex/arch-delugevpn/issues/67#issuecomment-399380209
 
 
 ##### invalid download directory
+![](resources/invalid_directory.png)
 - set UID and GUID
 
 ##### restart jdownload requires join network
+![](resources/container_join_network.png)
 restart from command line
 ```
 sudo docker container restart jdownloader
