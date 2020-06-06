@@ -161,7 +161,7 @@ You can now open your browser and navigate to `http://<Synology NAS IP>:5800` an
 >When starting your first download, it is possible that JDownloader will show an error regarding _Invalid download directory_. This is due to the fact that, although we mounted the `/output` directory, the user for which the `jdownloader` container is running doesn't have the necessary access rights. Please refer to the _Troubleshooting_ section further down for a step by step fix.
 
 ##### Setting up MyJDownloader
-
+![](resources/default_download_folder.png)
 
 ---
 ## Where to go from here?
@@ -178,6 +178,7 @@ You can now open your browser and navigate to `http://<Synology NAS IP>:5800` an
 ##### Missing `/dev/net/tun` device / Docker API has failed
 
 ![](resources/docker_api_fail.png)
+
 `Error response from daemon: linux runtime spec devices: error gathering device information while adding custom device "/dev/net/tun": no such file or directory.`
 
 Indeed, if we take a look at the Docker log, we will find an Error entry with the following Event:
@@ -189,10 +190,12 @@ https://github.com/binhex/arch-delugevpn/issues/67#issuecomment-399380209
 
 ##### invalid download directory
 ![](resources/invalid_directory.png)
+
 - set UID and GUID
 
 ##### restart jdownload requires join network
 ![](resources/container_join_network.png)
+
 restart from command line
 ```
 sudo docker container restart jdownloader
