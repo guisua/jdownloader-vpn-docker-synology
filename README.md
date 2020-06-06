@@ -44,7 +44,7 @@ To follow the steps below you will need to SSH into your Synology NAS.
 
 Now you can simply SSH into your Synology NAS like this:
 
-```bash
+```
 ssh <user>@<Synology local IP> -p <port>
 
 Example:
